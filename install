@@ -5,10 +5,9 @@ if [ "$(id -u)" != "0" ]; then
 	exit 1
 else
 	cd src
-	mkdir -p /usr/{bin,share/cdm}
-	install -m755 cdm /usr/bin/
-	install -Dm644 cdmrc /etc/cdmrc
-	install -m644 xinitrc* /usr/share/cdm/
-	install -Dm755 zzz-cdm-profile.sh /etc/profile.d/zzz-cdm-profile.sh
-	cp -Rf themes /usr/share/cdm/
+	mkdir -p /usr/{bin,share/sldm}
+	install -m755 sldm /usr/bin/
+	install -Dm644 sldmrc /etc/sldmrc
+	install -m644 xinitrc* /usr/share/sldm/
+	install -Dm755 zzz-sldm-profile.sh /etc/profile.d/zzz-sldm-profile.sh
 fi

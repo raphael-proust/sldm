@@ -3,7 +3,6 @@
 ############################
 
 # Set CDM theme and dialog options
-theme=cdm
 countfrom=1
 
 # List all WM binary names
@@ -66,7 +65,7 @@ display=0
 # Where should first X tty be spawned?
 xtty=7
 
-# Restrict tty? (By default, cdm increments X tty, this setting
+# Restrict tty? (By default, sldm increments X tty, this setting
 # allows administrators to lock users into one specific tty by
 # setting the display=N option on a per-user basis.)
 locktty=no
@@ -92,7 +91,7 @@ consolekittime=30
 # when it doesn't. These are passed the chosen window manager as $1; note that
 # the stock /etc/X11/xinit/xinitrc ignores this and always starts twm and three
 # xterms. Your custom xinitrc should start the window manager supplied as $1
-# instead. There is a sample xinitrc included at /usr/share/cdm/xinitrc.skel.
+# instead. There is a sample xinitrc included at /usr/share/sldm/xinitrc.skel.
 # If usexinit=no, then we instead call the chosen window manager directly.
 usexinit=no
 

@@ -1,5 +1,10 @@
 #!/bin/bash
 #
+#   SLDM: Single Line Display Manager
+#
+#   Copyright (C) 2012, Raphaël Proust <raphlalou@gmail.com>
+#
+#
 #   CDM: The Console Display Manager
 #
 #   Copyright (C) 2009-2011, Daniel J Griffiths <ghost1227@archlinux.us>
@@ -39,9 +44,9 @@ sysclientrc=/etc/X11/xinit/xinitrc
 # userserverrc=$HOME/.xserverrc
 # sysserverrc=/etc/X11/xinit/xserverrc
 
-# Source cdm configuration
-if [[ -f /etc/cdmrc ]]; then
-	source /etc/cdmrc
+# Source sldm configuration
+if [[ -f /etc/sldmrc ]]; then
+	source /etc/sldmrc
 	count=0
 	while [[ ${count} -lt ${#userconfig[@]} ]]; do
 		if [[ "$USER" == "${userconfig[${count}]}" ]]; then
@@ -52,27 +57,10 @@ if [[ -f /etc/cdmrc ]]; then
 	countfrom=${countfrom:-0}
 	consolekittime=${consolekittime:-30}
 else
-	echo -e "${error} ERROR: A valid cdm configuration was not found!${reset}"
+	echo -e "${error} ERROR: A valid sldm configuration was not found!${reset}"
 	echo -e "${info} Logging out.${reset}"
 	sleep 3
 	exit 1
-fi
-
-unset DIALOGRC
-# Source theme file
-if [[ ! -z ${theme} ]]; then
-	if [[ -f /usr/share/cdm/themes/${theme} ]]; then
-		DIALOGRC=/usr/share/cdm/themes/${theme}
-	else
-		echo -e "${info} Theme file ${theme} is invalid, reverting to default theme.${reset}"
-	fi
-fi
-if [[ -z $DIALOGRC ]]; then
-	if [[ -f /usr/share/cdm/themes/default ]]; then
-		DIALOGRC=/usr/share/cdm/themes/default
-	else
-		echo -e "${info} A valid theme file was not found, using system defaults.${reset}"
-	fi
 fi
 
 # Based on FreeBSD's /etc/rc.subr
@@ -172,7 +160,7 @@ mainmenu() {
 	else
 		# Display selection dialog
 		wm=$(
-			DIALOGRC="$DIALOGRC" dialog --colors \
+			dialog --colors \
 			--backtitle "${name} v${ver}" --stdout \
 			--ok-label " Select " --cancel-label " Logout " \
 			--menu "Select Window Manager" 0 0 0 ${menu}
@@ -212,7 +200,7 @@ shutdownmenu() {
 
 	# Display shutdown dialog
 	haltopt=$(
-		DIALOGRC="$DIALOGRC" dialog --colors \
+		dialog --colors \
 		--backtitle "${name} v${ver}" --stdout \
 		--ok-label " Select " --cancel-label " Cancel " \
 		--menu "Shutdown" 0 0 0 ${haltmenu}
@@ -243,7 +231,7 @@ xstart() {
 			wm_bin="$sysclientrc $wm_bin"
 		fi
 	else
-		wm_bin="/usr/share/cdm/xinitrc $wm_bin"
+		wm_bin="/usr/share/sldm/xinitrc $wm_bin"
 	fi
 
 	serverargs=":${display} ${serverargs} vt$((xtty+display))"
