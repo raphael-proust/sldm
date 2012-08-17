@@ -35,24 +35,24 @@ userconfig=(courtney)
 ##########################
 
 courtney() {
-	# Set CDM theme
-	theme=lime
+  # Set CDM theme
+  theme=lime
 
-	# List user allowed WM binary names
-	wmbinlist=(openbox-session)
+  # List user allowed WM binary names
+  wmbinlist=(openbox-session)
 
-	# List user allowed WM display names
-	wmdisplist=(Openbox)
+  # List user allowed WM display names
+  wmdisplist=(Openbox)
 
-	# Allow console login?
-	allowconsole=yes
+  # Allow console login?
+  allowconsole=yes
 
-	# Allow shutdown?
-	allowshutdown=no
+  # Allow shutdown?
+  allowshutdown=no
 
-	# Set specific display for user
-	# (Not honored unless locktty=yes)
-	# display=1
+  # Set specific display for user
+  # (Not honored unless locktty=yes)
+  # display=1
 }
 
 ############################
@@ -96,5 +96,5 @@ consolekittime=30
 usexinit=no
 
 # Additional arguments to pass to X server; it will be called as:
-#	exec /usr/bin/X :$display $serverargs vt$((xtty+display))
+#  exec /usr/bin/X :$display $serverargs vt$((xtty+display))
 serverargs="-nolisten tcp -dpi 96"
