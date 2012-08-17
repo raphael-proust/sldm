@@ -31,18 +31,11 @@
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
 
-name="Console Display Manager"
-ver="0.5.3"
-info="\e[1;34m==>\e[1;37m"
-error="\e[1;31m==>\e[1;37m"
-success="\e[1;32m==>\e[1;37m"
-reset="\e[0m"
+ver="0.1"
 # Ignore SIGINT (^C) and SIGTSTP (^Z)
 trap "" 2 20
 userclientrc=$HOME/.xinitrc
 sysclientrc=/etc/X11/xinit/xinitrc
-# userserverrc=$HOME/.xserverrc
-# sysserverrc=/etc/X11/xinit/xserverrc
 
 # Source sldm configuration
 if [[ -f /etc/sldmrc ]]; then
@@ -54,12 +47,10 @@ if [[ -f /etc/sldmrc ]]; then
     fi
     let count=count+1
   done
-  countfrom=${countfrom:-0}
-  consolekittime=${consolekittime:-30}
 else
-  echo -e "${error} ERROR: A valid sldm configuration was not found!${reset}"
-  echo -e "${info} Logging out.${reset}"
-  sleep 3
+  echo -e "ERROR: A valid sldm configuration was not found!"
+  echo -e "Logging out."
+  sleep 2
   exit 1
 fi
 
@@ -127,99 +118,67 @@ fi
 mainmenu() {
   # Generate main menu
   count=0
+  unset menu
   menu=$(
     while [[ ${count} -lt ${#wmdisplist[@]} ]]; do
-      echo -ne "$((count+countfrom)) ${wmdisplist[${count}]} "
+      printf "%s\n" "${wmlist[${count}]}"
       let count=count+1
     done
   )
 
   # Check if console access is allowed
   if $(checkyesno allowconsole); then
-    if ! $(checkyesno allowshutdown); then
-      let halt=99
-    fi
-    let console=${#wmdisplist[@]}+countfrom
-    menu="${menu} ${console} Console "
+    menu=$(printf "%s\n%s\n" "${menu}" "console")
   fi
 
-  # Check if shutdown access is allowed
   if $(checkyesno allowshutdown); then
-    if ! $(checkyesno allowconsole); then
-      let halt=${#wmdisplist[@]}
-    else
-      let halt=${#wmdisplist[@]}+1
-    fi
-    let halt=halt+countfrom
-    menu="${menu} ${halt} Shutdown "
+    menu=$(printf "%s\n%s\n" "${menu}" "shutdown")
   fi
 
-  # Override dialog display if only one option is available
-  if ! $(checkyesno allowconsole) && ! $(checkyesno allowshutdown) && [[ ${#wmdisplist[@]} == 1 ]]; then
-    wm=$countfrom
-  else
-    # Display selection dialog
-    wm=$(
-      dialog --colors \
-      --backtitle "${name} v${ver}" --stdout \
-      --ok-label " Select " --cancel-label " Logout " \
-      --menu "Select Window Manager" 0 0 0 ${menu}
-    )
-    if [[ $? != 0 ]]; then
-      clear
-      exit 0
-    fi
+  # Display selection menu
+  wm=$(printf %s "$menu" |slmenu)
+  if [[ $? != 0 ]]
+  then
+    clear
+    exit 0
   fi
 
   # Set wm_bin
   clear
-  if [[ ${wm} -eq ${console} ]]; then
-    exit 2 #2 signals to the profile file to not exit.
-  elif [[ ${wm} -eq ${halt} ]]; then
-    shutdownmenu
-  else
-    let wm=wm-countfrom
-    wm_bin="${wmbinlist[${wm}]}"
-    xstart
-  fi
+  case ${wm} in
+    (console) exit 2 ;;
+    (shutdown) shutdownmenu ;;
+    (*)
+      wm_bin="${wm}"
+      xstart
+      ;;
+  esac
 }
 
 shutdownmenu() {
-  count=$countfrom
+  unset haltmenu
   haltmenu=$(
     for opt in Shutdown Reboot Suspend Hibernate; do
       # Check if suspend/hibernate is enabled
       if ([[ $opt != Suspend ]] && [[ $opt != Hibernate ]]) ||
         ([[ $opt == Suspend ]] && $(checkyesno allowsuspend)) ||
         ([[ $opt == Hibernate ]] && $(checkyesno allowhibernate)); then
-        echo -ne "$count $opt "
-        let count=count+1
+        printf "%s\n" "$opt"
       fi
     done
   )
 
   # Display shutdown dialog
-  haltopt=$(
-    dialog --colors \
-    --backtitle "${name} v${ver}" --stdout \
-    --ok-label " Select " --cancel-label " Cancel " \
-    --menu "Shutdown" 0 0 0 ${haltmenu}
-  )
+  haltopt=$(printf %s "$haltmenu" |slmenu)
 
-  if [[ $? == 0 ]]; then
-    clear
-    if [[ ${haltopt} -eq $countfrom ]]; then
-      ${shutdowncommand}
-    elif [[ ${haltopt} -eq $((countfrom+1)) ]]; then
-      ${rebootcommand}
-    elif [[ ${haltopt} -eq $((countfrom+2)) ]] && $(checkyesno allowsuspend); then
-      ${suspendcommand}
-    else
-      ${hibernatecommand}
-    fi
-  else
-    mainmenu
-  fi
+  clear
+  case "${haltopt}" in
+    (shutdown) ${shutdowncommand} ;;
+    (reboot) ${rebootcommand} ;;
+    (suspend) ${suspendcommand} ;;
+    (hibernate) ${hibernatecommand} ;;
+    (*) mainmenu ;;
+  esac
 }
 
 xstart() {
@@ -235,30 +194,6 @@ xstart() {
   fi
 
   serverargs=":${display} ${serverargs} vt$((xtty+display))"
-
-  if $(checkyesno consolekit); then #do first to avoid race conditions
-    echo -ne "${info} Waiting for ConsoleKit to register X session (timeout ${consolekittime}s)..."
-
-    sleep $consolekittime &
-    clockpid=$!
-
-    trap "echo -e \"Registered! ${reset}\"" USR1
-
-    #have to store pid of dbus-monitor this way since dbus-monitor will run until killed.
-    fifo=$(mktemp --dry-run)
-    mkfifo --mode=700 $fifo
-    (dbus-monitor --system type=signal,interface=org.freedesktop.ConsoleKit.Seat,member=SessionAdded & echo $! > $fifo ) | \
-     sed -un 's|[[:space:]]*object path \"\(/[a-zA-Z0-9/]*\)\"|\1|p' | while read object; do
-      if dbus-send --system --print-reply  --dest=org.freedesktop.ConsoleKit "$object" org.freedesktop.ConsoleKit.Session.GetX11Display | \
-               grep -qF "$display"; then
-        kill -USR1 $$
-        break
-      fi
-     done &
-
-     read dbuspid < $fifo
-     rm -f $fifo
-  fi
 
   if $(checkyesno loginshell); then
     setsid bash --login -c "startx $wm_bin -- ${serverargs}" &> /dev/null &
