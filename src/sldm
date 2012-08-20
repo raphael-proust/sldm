@@ -75,9 +75,7 @@ checkyesno() {
     value=${value:-no}
   fi
   case $value in
-    #    "yes", "true", "on", or "1"
     ([Yy][Ee][Ss]|[Tt][Rr][Uu][Ee]|[Oo][Nn]|1) return 0 ;;
-    #    "no", "false", "off", or "0"
     ([Nn][Oo]|[Ff][Aa][Ll][Ss][Ee]|[Oo][Ff][Ff]|0) return 1 ;;
     (*)
       echo "\$${1} is not set properly." >&2
@@ -89,8 +87,7 @@ checkyesno() {
 # If X is already running and locktty=yes, activate it,
 # otherwise, increment.
 if $(checkyesno locktty)
-then
-  # Verify display exists
+then # Verify display exists
   if [[ -n "${display//[0-9]/}" ]]
   then
     display=0
@@ -102,8 +99,7 @@ then
     chvt ${tty}
     exit 0
   fi
-else
-  # Get the first empty display
+else # Get the first empty display
   display=0
   while [[ ${display} -lt 7 ]]
   do
@@ -126,7 +122,6 @@ fi
 mainmenu() {
   # Generate main menu
   count=0
-  unset menu
   menu=$(
     while [[ ${count} -lt ${#wmlist[@]} ]]
     do
@@ -149,12 +144,10 @@ mainmenu() {
   wm=$(printf %s "$menu" |slmenu)
   if [[ $? != 0 ]]
   then
-    clear
     exit 0
   fi
 
   # Set wm_bin
-  clear
   case ${wm} in
     (console) exit 2 ;;
     (shutdown) shutdownmenu ;;
@@ -166,9 +159,8 @@ mainmenu() {
 }
 
 shutdownmenu() {
-  unset haltmenu
   haltmenu=$(
-    for opt in shutdown reboot suspend hibernate
+    for opt in shutdown reboot suspend hibernate back
     do
       # Check if suspend/hibernate is enabled
       if ([[ $opt != suspend ]] && [[ $opt != hibernate ]]) ||
@@ -183,7 +175,6 @@ shutdownmenu() {
   # Display shutdown dialog
   haltopt=$(printf %s "$haltmenu" |slmenu)
 
-  clear
   case "${haltopt}" in
     (shutdown) ${shutdowncommand} ;;
     (reboot) ${rebootcommand} ;;
