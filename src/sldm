@@ -137,7 +137,7 @@ mainmenu() {
 
   if $(checkyesno allowshutdown)
   then
-    menu=$(printf "%s\n%s\n" "${menu}" "shutdown")
+    menu=$(printf "%s\n%s\n%s\n" "${menu}" "shutdown" "reboot")
   fi
 
   # Display selection menu
@@ -150,37 +150,12 @@ mainmenu() {
   # Set wm_bin
   case ${wm} in
     (console) exit 2 ;;
-    (shutdown) shutdownmenu ;;
+    (shutdown) ${shutdowncommand} ;;
+    (reboot) ${rebootcommand} ;;
     (*)
       wm_bin="${wm}"
       xstart
       ;;
-  esac
-}
-
-shutdownmenu() {
-  haltmenu=$(
-    for opt in shutdown reboot suspend hibernate back
-    do
-      # Check if suspend/hibernate is enabled
-      if ([[ $opt != suspend ]] && [[ $opt != hibernate ]]) ||
-        ([[ $opt == suspend ]] && $(checkyesno allowsuspend)) ||
-        ([[ $opt == hibernate ]] && $(checkyesno allowhibernate))
-      then
-        printf "%s\n" "$opt"
-      fi
-    done
-  )
-
-  # Display shutdown dialog
-  haltopt=$(printf %s "$haltmenu" |slmenu)
-
-  case "${haltopt}" in
-    (shutdown) ${shutdowncommand} ;;
-    (reboot) ${rebootcommand} ;;
-    (suspend) ${suspendcommand} ;;
-    (hibernate) ${hibernatecommand} ;;
-    (*) mainmenu ;;
   esac
 }
 
