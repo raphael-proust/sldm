@@ -1,3 +1,7 @@
+Version 0.2 (2012-09-13)
+        - Simplified code
+        - Added terminal managers (dvtm, screen, tmux) support
+
 Version 0.1 (2012-08-17)
 
 CDM CHANGELOG follows

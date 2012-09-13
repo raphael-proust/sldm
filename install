@@ -5,9 +5,8 @@ if [ "$(id -u)" != "0" ]; then
 	exit 1
 else
 	cd src
-	mkdir -p /usr/{bin,share/sldm}
+	mkdir -p /usr/{bin}
 	install -m755 sldm /usr/bin/
 	install -Dm644 sldmrc /etc/sldmrc
-	install -m644 xinitrc* /usr/share/sldm/
 	install -Dm755 zzz-sldm-profile.sh /etc/profile.d/zzz-sldm-profile.sh
 fi
