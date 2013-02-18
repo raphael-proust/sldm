@@ -1,11 +1,19 @@
-#!/bin/bash
+#!/bin/sh
 
-if [ "$(id -u)" != "0" ]; then
-	echo "This script must be run as root!"
-	exit 1
+if which amixer >/dev/null
+then
+	if [ "$(id -u)" != "0" ]
+	then
+		echo "This script must be run as root!"
+		exit 1
+	else
+		cd src
+		install -m755 sldm /usr/bin/
+		install -Dm644 sldmrc /etc/sldmrc
+		install -Dm755 zzz-sldm-profile.sh /etc/profile.d/zzz-sldm-profile.sh
+	fi
 else
-	cd src
-	install -m755 sldm /usr/bin/
-	install -Dm644 sldmrc /etc/sldmrc
-	install -Dm755 zzz-sldm-profile.sh /etc/profile.d/zzz-sldm-profile.sh
+	echo "sldm requires slmenu to work. Please install slmenu (https://bitbucket.org/rafaelgg/slmenu)"
+	exit 1
 fi
+
