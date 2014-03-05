@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if which amixer >/dev/null
+if which slmenu >/dev/null
 then
 	if [ "$(id -u)" != "0" ]
 	then
