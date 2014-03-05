@@ -7,10 +7,10 @@ wmlist=(dwm wmii)
 tmlist=(dvtm screen)
 
 # Allow console login?
-allowconsole=yes
+allowconsole=true
 
 # Allow shutdown?
-allowshutdown=yes
+allowshutdown=true
 shutdowncommand='sudo shutdown -P now'
 rebootcommand='sudo shutdown -r now'
 
@@ -25,11 +25,11 @@ rebootcommand='sudo shutdown -r now'
 #  # Opitons for the menu
 #  wmlist=(openbox-session)
 #  tmlist=()
-#  allowconsole=yes
-#  allowshutdown=no
+#  allowconsole=true
+#  allowshutdown=false
 #
 #  # Set specific display for user
-#  # (Not honored unless locktty=yes)
+#  # (Not honored unless locktty=true)
 #  # display=1
 #}
 
@@ -46,7 +46,7 @@ xtty=7
 # Restrict tty? (By default, sldm increments X tty, this setting
 # allows administrators to lock users into one specific tty by
 # setting the display=N option on a per-user basis.)
-locktty=no
+locktty=false
 
 # Enable login shell (fixes issues with some keymaps, uses bash).
 # Note that your bash scripts won't have any terminal as stdin when
@@ -54,7 +54,7 @@ locktty=no
 # unless you explicitly check for [ -t 0 ] or that every login shell
 # is also interactive. However, we're sending stdout and stderr to
 # /dev/null, so you won't see the complaints.
-loginshell=yes
+loginshell=true
 
 # Additional arguments to pass to X server; it will be called as:
 #  exec /usr/bin/X :$display $serverargs vt$((xtty+display))

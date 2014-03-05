@@ -26,27 +26,13 @@ else
   exit 1
 fi
 
-# Based on FreeBSD's /etc/rc.subr
-#
-# checkyesno var
-#    Test $1 variable, and warn if not set to YES or NO.
-#    Return 0 if it's "yes" (et al), nonzero otherwise.
-#    to make default yes, do "checkyesno var yes"
-
 checkyesno() {
   local value=${!1}
-  # debug "checkyesno: $1 is set to $value."
-  if [[ -n $2 ]]
-  then
-    value=${value:-$2}
-  else
-    value=${value:-no}
-  fi
   case $value in
-    ([Yy][Ee][Ss]|[Tt][Rr][Uu][Ee]|[Oo][Nn]|1) return 0 ;;
-    ([Nn][Oo]|[Ff][Aa][Ll][Ss][Ee]|[Oo][Ff][Ff]|0) return 1 ;;
+    (true) return 0 ;;
+    (false) return 1 ;;
     (*)
-      echo "\$${1} is not set properly." >&2
+      echo "\$${1} is not set properly. Use 'true' or 'false'." >&2
       exit 1
     ;;
   esac

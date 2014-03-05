@@ -1,3 +1,7 @@
+Version 0.3 (2014-03-05)
+	- install script bugfix
+	- simpler config variable (only accepts `yes`)
+
 Version 0.2 (2012-09-13)
         - Simplified code
         - Added terminal managers (dvtm, screen, tmux) support
